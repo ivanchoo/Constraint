@@ -259,26 +259,26 @@ let layout: NSLayoutConstraint = c.width.equalTo(view).width.buildTo(view)
 - `func reset() -> Constraint`:  Returns a copy of `Constraint` instance reset to the default values
 - `func print() -> Constraint`:  Prints to console and returns `self`
 - `func isEqual(other: Constraint) -> Bool`: Checks if 2 Constraint instances have the same properties
-	```swift
-	let c1 = Constraint(view1), c2 = Constraint(view1)
-	c1.isEqual(c2) // true
-	```
+```swift
+let c1 = Constraint(view1), c2 = Constraint(view1)
+c1.isEqual(c2) // true
+```
 - `func dump() -> ConstraintProperties`:  Returns a named tuple of constraint properties
-	```swift
-	let properties = Constraint(view).width.constant(100).dump()
-	properties.firstItem        // view
-	properties.firstAttribute   // .Width
-	properties.constant         // 100
-	properties.secondItem       // nil
-	properties.secondAttribute  // .NotAnAttribute
-	...
-	```
+```swift
+let properties = Constraint(view).width.constant(100).dump()
+properties.firstItem        // view
+properties.firstAttribute   // .Width
+properties.constant         // 100
+properties.secondItem       // nil
+properties.secondAttribute  // .NotAnAttribute
+...
+```
 - `static func identifiedBy(predicate: String -> Bool) -> AnyObject! -> Bool`: Helper method used to filter an array of `NSLayoutConstraint`
- 	```swift
- 	view.constraints.filter(Constraint.identifiedBy { $0 == "foo" })
- 	view.constraints.filter(Constraint.identifiedBy { startsWith($0, "foo") })
- 	view.constraints.filter(Constraint.identifiedBy { endsWith($0, "bar") })
- 	```
+```swift
+view.constraints.filter(Constraint.identifiedBy { $0 == "foo" })
+view.constraints.filter(Constraint.identifiedBy { startsWith($0, "foo") })
+view.constraints.filter(Constraint.identifiedBy { endsWith($0, "bar") })
+```
  
 ## Constraint compositions
 
@@ -353,7 +353,7 @@ c.centerY.equalTo(view).centerY.buildTo(view)
 
 ### About composite constraints
 
-The Constraint composition API returns a `Constraints` (note the trailing 's') instance, which consist of multiple `Constraint` instances in the `Constraints.children` property.
+The Constraint composition API returns a `Constraints` (note the trailing 's') instance, which consist of multiple `Constraint` instances stored in the `Constraints.children` property.
 
 You can iterate a `Constraints` instance:
 
@@ -384,7 +384,7 @@ Or perform batch operations using the following API:
 
 Constraint aims to be simple and bug-free. It avoids doing more than it should and makes no assumptions to your view hierarchy and workflow.
 
- - It does not call `func setTranslatesAutoresizingMaskIntoConstraints(flag: bool)`, you have to do it yourself
+ - It does not call `func setTranslatesAutoresizingMaskIntoConstraints(flag: bool)`, you'll have to do it yourself
  - It does not check if your constraints are logical, instead it lets `NSLayoutConstraint` tell you what's wrong
  ```swift
  // The following will not generate any errors
