@@ -216,7 +216,6 @@ If the above looks too cryptic for your taste, you can do this:
 (c.leading == v.leading).multiplier(2)
 (c.leading == v.leading).constant(100)
 (c.leading == v.leading).multiplier(2).constant(100)
-
 ```
 
 ### Priority and Identifier
