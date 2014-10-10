@@ -93,6 +93,11 @@ public struct Constraint: DebugPrintable {
         }
     }
     
+    /// Helper method used to filter an array of `NSLayoutConstraint`.
+    /// For example:
+    ///
+    ///     view.constraints.filter(Constraint.identifiedBy { $0 == "foo" })
+    ///
     public static func identifiedBy(predicate: String -> Bool) -> AnyObject! -> Bool {
         return {
             if let constraint = $0 as? NSLayoutConstraint {
@@ -267,22 +272,22 @@ public struct Constraint: DebugPrintable {
     // MARK: Compositions
     
     /// Returns a composited constraint that snaps the `firstItem` to the edges of `secondItem`
-    public func snapToEdgesOf(secondItem: AnyObject) -> CompositeContraints {
-        return snapToEdgesOf(secondItem, spacing: 0)
+    public func snapToEdgesOf(secondItem: AnyObject) -> Constraints {
+        return snapToEdgesOf(secondItem, offset: 0)
     }
     
     /// Returns a composited constraint that snaps the `firstItem` to the edges of `secondItem` offset with equal spacing for all edges
-    public func snapToEdgesOf(secondItem: AnyObject, spacing: CGFloat) -> CompositeContraints {
-        return snapToEdgesOf(secondItem, spacing: UIEdgeInsets(top: spacing, left: spacing, bottom: spacing, right: spacing))
+    public func snapToEdgesOf(secondItem: AnyObject, offset: CGFloat) -> Constraints {
+        return snapToEdgesOf(secondItem, offset: UIEdgeInsets(top: offset, left: offset, bottom: offset, right: offset))
     }
     
     /// Returns a composited constraint that snaps the `firstItem` to the edges of `secondItem` offset with the respective values defined by `spacing`
-    public func snapToEdgesOf(secondItem: AnyObject, spacing: UIEdgeInsets) -> CompositeContraints {
+    public func snapToEdgesOf(secondItem: AnyObject, offset: UIEdgeInsets) -> Constraints {
         let edges: [(NSLayoutAttribute, CGFloat)] = [
-            (.Top, spacing.top),
-            (.Leading, spacing.left),
-            (.Bottom, -spacing.bottom),
-            (.Trailing, -spacing.right),
+            (.Top, offset.top),
+            (.Leading, offset.left),
+            (.Bottom, -offset.bottom),
+            (.Trailing, -offset.right),
         ]
         let children = edges.map { edge -> Constraint in
             return self.reset()
@@ -291,26 +296,26 @@ public struct Constraint: DebugPrintable {
                 .attribute(edge.0)
                 .constant(edge.1)
         }
-        return CompositeContraints(children)
+        return Constraints(children)
     }
     
     /// Returns a composited constraint that snaps the `firstItem` to the margins of `secondItem`
-    public func snapToMarginsOf(secondItem: AnyObject) -> CompositeContraints {
-        return snapToMarginsOf(secondItem, spacing: 0)
+    public func snapToMarginsOf(secondItem: AnyObject) -> Constraints {
+        return snapToMarginsOf(secondItem, offset: 0)
     }
     
     /// Returns a composited constraint that snaps the `firstItem` to the margins of `secondItem` offset with equal spacing for all sides
-    public func snapToMarginsOf(secondItem: AnyObject, spacing: CGFloat) -> CompositeContraints {
-        return snapToMarginsOf(secondItem, spacing: UIEdgeInsets(top: spacing, left: spacing, bottom: spacing, right: spacing))
+    public func snapToMarginsOf(secondItem: AnyObject, offset: CGFloat) -> Constraints {
+        return snapToMarginsOf(secondItem, offset: UIEdgeInsets(top: offset, left: offset, bottom: offset, right: offset))
     }
     
     /// Returns a composited constraint that snaps the `firstItem` to the margins of `secondItem` offset with the respective values defined by `spacing`
-    public func snapToMarginsOf(secondItem: AnyObject, spacing: UIEdgeInsets) -> CompositeContraints {
+    public func snapToMarginsOf(secondItem: AnyObject, offset: UIEdgeInsets) -> Constraints {
         let sides: [(NSLayoutAttribute, NSLayoutAttribute, CGFloat)] = [
-            (.Top, .TopMargin, spacing.top),
-            (.Leading, .LeadingMargin, spacing.left),
-            (.Bottom, .BottomMargin, -spacing.bottom),
-            (.Trailing, .TrailingMargin, -spacing.right),
+            (.Top, .TopMargin, offset.top),
+            (.Leading, .LeadingMargin, offset.left),
+            (.Bottom, .BottomMargin, -offset.bottom),
+            (.Trailing, .TrailingMargin, -offset.right),
         ]
         let children = sides.map { side -> Constraint in
             return self.reset()
@@ -319,20 +324,20 @@ public struct Constraint: DebugPrintable {
                 .attribute(side.1)
                 .constant(side.2)
         }
-        return CompositeContraints(children)
+        return Constraints(children)
     }
     
     /// Returns a composited constraint where `firstItem` has equal width & height as `secondItem`
-    public func equalSizeWith(secondItem: AnyObject) -> CompositeContraints {
-        return CompositeContraints([
+    public func equalSizeWith(secondItem: AnyObject) -> Constraints {
+        return Constraints([
             reset().width.equalTo(secondItem).width,
             reset().height.equalTo(secondItem).height
         ])
     }
     
     /// Returns a composited constraint where `firstItem` has a constant width and height
-    public func equalSize(size: CGSize) -> CompositeContraints {
-        return CompositeContraints([
+    public func equalSize(size: CGSize) -> Constraints {
+        return Constraints([
             reset().width.constant(size.width),
             reset().height.constant(size.height)
         ])
@@ -340,8 +345,8 @@ public struct Constraint: DebugPrintable {
     
     
     /// Returns a composited constraint where `firstItem` is aligned vertically and horizontally to the center of `secondItem`
-    public func alignCenterWith(secondItem: AnyObject) -> CompositeContraints {
-        return CompositeContraints([
+    public func alignCenterWith(secondItem: AnyObject) -> Constraints {
+        return Constraints([
             reset().centerY.equalTo(secondItem).centerY,
             reset().centerX.equalTo(secondItem).centerX
         ])
@@ -349,10 +354,10 @@ public struct Constraint: DebugPrintable {
     
 }
 
-// MARK: - CompositeContraints
+// MARK: - Constraints
 
-/// A structure that contains multiple `Constraints`
-public struct CompositeContraints: SequenceType, DebugPrintable {
+/// A structure that contains multiple `Constraint`
+public struct Constraints: SequenceType, DebugPrintable {
     
     public typealias Generator = GeneratorOf<Constraint>
     
@@ -374,8 +379,8 @@ public struct CompositeContraints: SequenceType, DebugPrintable {
     }
     
     /// Returns a new instance by applying the `transform` block to all children
-    public func map(transform: Constraint -> Constraint) -> CompositeContraints {
-        return CompositeContraints(children.map(transform))
+    public func map(transform: Constraint -> Constraint) -> Constraints {
+        return Constraints(children.map(transform))
     }
 
     /// Returns an array of `NSLayoutContstraint`
@@ -391,18 +396,18 @@ public struct CompositeContraints: SequenceType, DebugPrintable {
     }
     
     /// Returns a new instance where all children are updated with `priority` value
-    public func priority(priority: Float) -> CompositeContraints {
+    public func priority(priority: Float) -> Constraints {
         return map { $0.priority(priority) }
     }
     
     /// Returns a new instance where all children are updated with `identifier` value
-    public func identifier(identifier: String?) -> CompositeContraints {
+    public func identifier(identifier: String?) -> Constraints {
         return map { $0.identifier(identifier) }
     }
     
     // MARK: Debugging
     
-    public func print() -> CompositeContraints {
+    public func print() -> Constraints {
         println("\(self)")
         return self
     }
